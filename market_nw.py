@@ -135,6 +135,7 @@ def buy_order(**kwargs):
     gold -= (kwargs['price'] * nOrder['quantity'])
     if nOrder['fee'] != 'None':
         gold -= nOrder['fee']
+
     return
 
 

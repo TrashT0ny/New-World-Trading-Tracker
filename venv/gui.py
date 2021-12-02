@@ -1,4 +1,6 @@
 import PySimpleGUI as sg
+
+import market_nw
 import market_nw as market
 
 #Title Window #####
@@ -55,6 +57,24 @@ def open_sell():
 
     sell_window.close()
 
+#Orders Window #####
+def open_orders():
+    orders_layout = [   [sg.Text('Orders'), sg.Button('X')],
+                        [sg.Multiline('', size=(30, 4), key='-orders-')] ]
+    orders_window = sg.Window('Order Page', orders_layout, finalize=True)
+    orders = ''
+    for order in market.log:
+        orders += order['name'] + ' ' + str(order['total']) + ' ' + str(order['quantity']) + '\n'
+    orders_window['-orders-'].print(orders)
+    event1, value1 = orders_window.read()
+
+    while True:
+
+        if event1 == 'X':
+            break
+
+    orders_window.close()
+
 
 # main ###############################################
 while True:
@@ -67,6 +87,10 @@ while True:
         title_window.hide()
         open_sell()
         title_window.un_hide()
-    if event == 'X':
+    if event == 'Show Orders':
+        title_window.hide()
+        open_orders()
+        title_window.un_hide()
+    if event == 'X' or sg.WINDOW_CLOSED:
         title_window.close()
         break
