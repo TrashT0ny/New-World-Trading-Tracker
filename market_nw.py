@@ -11,7 +11,7 @@
 #   and efficiency.
 # #
 
-# # Version 0.2
+# # Version 0.3
 #   buy_order(**kwargs)
 #   -runs without errors in 8 given cases
 #   -assumes name quan and logic expression for other vars exist
@@ -26,19 +26,26 @@
 #   show_history()
 #   -prints timestamp of completed orders
 #
+#   save_order(fileName)
+#
+#   load_order(fileName)
+#
 # #
 
 
 import time
+import pickle
 
 # Order Prototype
 #    name | unit price | tier | gs | gem | perk | rarity | duration | quantity | location | fee | charge | total | time
-initOrder = {'name': 'init', 'price': 0, 'tier': 0, 'gs': 0, 'gem': 'none', 'perk': 'none', 'rarity': 'none',
-             'duration': 0, 'quantity': 0, 'location': 'none', 'fee': 0, 'charge': 0, 'total': 0, 'time': 'none'}
+# initOrder = {'name': 'init', 'price': 0, 'tier': 0, 'gs': 0, 'gem': 'none', 'perk': 'none', 'rarity': 'none',
+#             'duration': 0, 'quantity': 0, 'location': 'none', 'fee': 0, 'charge': 0, 'total': 0, 'time': 'none'}
 # Transaction Log
-log = [initOrder]
+import market_nw
+
+log = []
 # Current Stock
-stock = {'test': 0}
+stock = {}
 # Gold Expenditure
 gold = 0
 
@@ -135,7 +142,7 @@ def buy_order(**kwargs):
     gold -= (kwargs['price'] * nOrder['quantity'])
     if nOrder['fee'] != 'None':
         gold -= nOrder['fee']
-
+    print([gold, stock, log])
     return
 
 
@@ -252,36 +259,28 @@ def show_history():
     return
 
 
-# temporary main
-# testing functions
-# gold += 100
-# buy_order(name='Iron Ore', total=16, quan=10, price=1.5)
-# show_totals()
-# print("Test 1: -fee")
-# sell_order(name='Iron Ore', quan=5, charge=1, price=1, nPrice=1)
-# show_totals()
-# print('Test 2: -charge -price -nprice')
-# sell_order(name='Iron Ore', quan=5, fee=1.3)
-# show_totals()
-# print('Test 3: -charge -price')
-# sell_order(name='Iron Ore', quan=5, fee=1.3, nPrice=1.2)
-# show_totals()
-# print('Test 4: -charge -nprice')
-# sell_order(name='Iron Ore', quan=5, fee=1.3, price=1.1)
-# show_totals()
-# print('Test 5: -charge')
-# sell_order(name='Iron Ore', quan=5, fee=1.3, price=1.3, nPrice=1.1)
-# show_totals()
-# print('Test 6: -price -nprice')
-# sell_order(name='Iron Ore', quan=5, fee=1.3, charge=0.2)
-# show_totals()
-# print('Test 7: -price')
-# sell_order(name='Iron Ore', quan=5, fee=1.3, charge=0.2, nPrice=1.1)
-# show_totals()
-# print('Test 8: -nprice')
-# sell_order(name='Iron Ore', quan=5, fee=1.3, charge=0.2, price=1.3)
-# show_totals()
-# print('Test 9: all values given')
-# sell_order(name='Iron Ore', quan=5, fee=1.3, charge=0.2, price=1.3, nPrice=1.1)
-# show_totals()
-# show_history()
+# saveOrder()
+# doesn't overwrite
+def save_order(fileName):
+    db = {'gold': gold, 'stock': stock, 'log': log}
+    dbfile = open('saves/' + fileName, 'ab')
+    pickle.dump(db, dbfile)
+    dbfile.close()
+    return
+
+
+# loadOrder()
+def load_order(fileName):
+    try:
+        dbfile = open('saves/' + fileName, 'rb')
+    except:
+        print('File Not Found')
+        return
+    db = pickle.load(dbfile)
+    print(db)
+    market_nw.gold = db['gold']
+    market_nw.stock = db['stock']
+    market_nw.log = db['log']
+    dbfile.close()
+    return
+

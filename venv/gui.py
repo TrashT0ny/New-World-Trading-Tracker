@@ -1,12 +1,20 @@
-import PySimpleGUI as sg
+# # Prototype GUI
+#   Gui allows simple interface with New World Trading Tracker. Users
+#   can enter simplified buy/sell orders, view Order log, and save/load
+#   databases.
+#   Graphs to be implemented soon, with accompanying filters
+# #
 
+
+import PySimpleGUI as sg
 import market_nw
 import market_nw as market
 
 #Title Window #####
 title_layout = [    [sg.Text('New World Trading Post'), sg.Button('X')],
                     [sg.Button('Buy'), sg.Button('Sell')],
-                    [sg.Button('Show Orders')]  ]
+                    [sg.Button('Show Orders')],
+                    [sg.Button('Save'), sg.Button('Load')]   ]
 
 title_window = sg.Window('Window Title', title_layout)
 
@@ -64,7 +72,8 @@ def open_orders():
     orders_window = sg.Window('Order Page', orders_layout, finalize=True)
     orders = ''
     for order in market.log:
-        orders += order['name'] + ' ' + str(order['total']) + ' ' + str(order['quantity']) + '\n'
+        if order['name'] != 'init':
+            orders += order['name'] + ' ' + str(order['total']) + ' ' + str(order['quantity']) + '\n'
     orders_window['-orders-'].print(orders)
     event1, value1 = orders_window.read()
 
@@ -74,6 +83,32 @@ def open_orders():
             break
 
     orders_window.close()
+
+#Save Window #####
+def open_save():
+    save_layout = [ [sg.Text('File Name'), sg.InputText('', size=(12,1), key='-fileName-')],
+                    [sg.Button('Save')]  ]
+    save_window = sg.Window('Save Data', save_layout)
+    event1, value1 = save_window.read()
+    while True:
+        if event1 == 'Save':
+            market.save_order(value1['-fileName-'])
+            save_window.close()
+            break
+    return
+
+#Load Window #####
+def open_load():
+    load_layout = [ [sg.Text('File Name'), sg.InputText('', size=(12,1), key='-fileName-')],
+                    [sg.Button('Load')]  ]
+    load_window = sg.Window('Load Data', load_layout)
+    event1, value1 = load_window.read()
+    while True:
+        if event1 == 'Load':
+            market.load_order(value1['-fileName-'])
+            load_window.close()
+            break
+    return
 
 
 # main ###############################################
@@ -91,6 +126,18 @@ while True:
         title_window.hide()
         open_orders()
         title_window.un_hide()
+    if event == 'Save':
+        open_save()
+        print('Save successful')
+    if event == 'Load':
+        #clear current vars
+        #TODO maybe unnecessary?
+        market.gold = 0
+        market.log = []
+        market.stock = []
+
+        open_load()
+        print('Load successful')
     if event == 'X' or sg.WINDOW_CLOSED:
         title_window.close()
         break
